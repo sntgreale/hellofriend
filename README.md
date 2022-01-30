@@ -1,0 +1,2 @@
+# hellofriend
+ZSH console theme.

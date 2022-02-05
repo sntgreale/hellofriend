@@ -274,7 +274,7 @@ headline_git_status() {
         local style_status="$RESET$HEADLINE_STYLE_DEFAULT$HEADLINE_STYLE_STATUS"
         status_str="$status_str%{$style_joint%}$EMPTY%{$style_status%}"
       fi
-      eval prefix="\$GIT_${key}"
+      eval prefix="\$GIT_STATUS_${key}"
       if [[ $GIT_STATUS_COUNTS == 'true' ]]; then
         if [[ $GIT_STATUS_OMIT_ONE == 'true' && (( ${totals[$key]} == 1 )) ]]; then
           status_str="$status_str$prefix"
@@ -294,3 +294,146 @@ headline_git_status() {
     echo $GIT_CLEAN
   fi
 }
+
+
+
+# Before executing command
+add-zsh-hook preexec headline_preexec
+headline_preexec() {
+  # TODO better way of knowing the prompt is at the top of the terminal
+  if [[ $2 == 'clear' ]]; then
+    _HEADLINE_DO_SEP='false'
+  fi
+}
+
+# Before prompting
+add-zsh-hook precmd headline_precmd
+headline_precmd() {
+  # Information
+  local user_str host_str path_str branch_str status_str
+  [[ $HEADLINE_USER == 'true' ]] && user_str=$USER
+  [[ $HEADLINE_HOST == 'true' ]] && host_str=$(hostname -s)
+  [[ $HEADLINE_PATH == 'true' ]] && path_str=$(print -rP '%~')
+  [[ $HEADLINE_GIT_BRANCH == 'true' ]] && branch_str=$(headline_git_branch)
+  [[ $HEADLINE_GIT_STATUS == 'true' ]] && status_str=$(headline_git_status)
+
+  # Trimming
+  if (( $COLUMNS < 35 && ${#path_str} )); then
+    user_str=''; host_str=''
+  elif (( $COLUMNS < 55 )); then
+    user_str="${user_str:0:1}"
+    host_str="${host_str:0:1}"
+  fi
+
+  # Shared variables
+  _HEADLINE_LEN=0
+  _HEADLINE_LEN_SUM=0
+  _HEADLINE_INFO_LEFT=''
+  _HEADLINE_LINE_LEFT=''
+  _HEADLINE_INFO_RIGHT=''
+  _HEADLINE_LINE_RIGHT=''
+
+  local git_len len
+  # Promp construction HEADLINE GIT STATUS
+  if (( ${#status_str} )); then
+    _headline_part JOINT "$HEADLINE_SINGLE_CORNER_BOTTOM_RIGHT" right
+    _headline_part STATUS "$BRACKETS_OPEN$SPACE$status_str$SPACE$BRACKETS_CLOSE" right
+  fi
+  # Promp construction HEADLINE GIT BRANCH
+  if (( ${#branch_str} )); then
+    if (( ${#status_str} )); then
+      _headline_part JOINT "$HEADLINE_SINGLE_BOTTOM_INTERSECTION" right
+    else
+      _headline_part JOINT "$HEADLINE_SINGLE_CORNER_BOTTOM_RIGHT" right
+    fi
+    _headline_part BRANCH "$BRACKETS_OPEN$SPACE$branch_str$SPACE$BRACKETS_CLOSE" right
+  fi
+  git_len=$_HEADLINE_LEN_SUM
+  # Promp construction HEADLINE USER
+  if (( ${#user_str} )); then
+    _headline_part JOINT "$HEADLINE_SINGLE_CORNER_BOTTOM_LEFT" left
+    _headline_part USER "$SPACE$user_str" left
+  fi
+  # Promp construction HEADLINE HOST
+  if (( ${#host_str} )); then
+    if (( ${#user_str} )); then
+      _headline_part JOINT "$HEADLINE_SINGLE_BOTTOM_INTERSECTION" left
+      _headline_part HOST "$host_str$SPACE" left
+    else
+      _headline_part JOINT "$HEADLINE_SINGLE_CORNER_BOTTOM_LEFT" left
+      _headline_part HOST "$SPACE$host_str$SPACE" left
+    fi
+  fi
+  # Promp construction HEADLINE PATH
+  if (( ${#path_str} )); then
+    if (( ${#host_str} )) || (( ${#user_str} )); then
+      _headline_part JOINT "$HEADLINE_SINGLE_BOTTOM_INTERSECTION" left
+    else
+      _headline_part JOINT "$HEADLINE_SINGLE_CORNER_BOTTOM_LEFT" left
+    fi
+    len=$(( $COLUMNS - $_HEADLINE_LEN_SUM - ( $git_len ? ${#SPACE} + ${#SPACE} : 0 ) ))
+    _headline_part PATH "$SPACE%$len<...<$path_str%<<$SPACE" left
+    if (( ${#branch_str} )) || (( ${#status_str} )); then
+      _headline_part JOINT "$HEADLINE_SINGLE_BOTTOM_INTERSECTION" right
+    else
+      _headline_part JOINT "$HEADLINE_SINGLE_CORNER_BOTTOM_RIGHT" right
+    fi
+  else
+    if (( ${#host_str} )) || (( ${#user_str} )); then
+      if (( ${#branch_str} )) || (( ${#status_str} )); then
+        _headline_part JOINT "$HEADLINE_SINGLE_BOTTOM_INTERSECTION" left
+      else
+        _headline_part JOINT "$SPACE$HEADLINE_SINGLE_CORNER_BOTTOM_RIGHT" left
+      fi
+    else
+      if (( ${#branch_str} )) || (( ${#status_str} )); then
+        _headline_part JOINT "$HEADLINE_SINGLE_CORNER_BOTTOM_LEFT" left
+      fi
+    fi
+  fi
+  len=$(( $COLUMNS - $_HEADLINE_LEN_SUM - ${#SPACE} - ${#SPACE} ))
+
+  # Separator line
+  _HEADLINE_LINE_OUTPUT="$_HEADLINE_LINE_LEFT$_HEADLINE_LINE_RIGHT$RESET"
+  if [[ $HEADLINE_LINE_MODE == 'on' || ($HEADLINE_LINE_MODE == 'auto' && $_HEADLINE_DO_SEP == 'true' ) ]]; then
+    print -rP $_HEADLINE_LINE_OUTPUT
+  fi
+  _HEADLINE_DO_SEP='true'
+
+  # Information line
+  _HEADLINE_INFO_OUTPUT="$_HEADLINE_INFO_LEFT$_HEADLINE_INFO_RIGHT$RESET"
+  if [[ $HEADLINE_INFO_MODE == 'precmd' ]]; then
+    print -rP $_HEADLINE_INFO_OUTPUT
+  fi
+}
+
+# Create a part of the prompt
+_headline_part() { # (name, content, side)
+  local style info line
+  eval style="\$RESET\$HEADLINE_STYLE_DEFAULT\$HEADLINE_STYLE_${1}"
+  info="%{$style%}$2"
+  _HEADLINE_LEN=$(headline_prompt_len $info)
+  _HEADLINE_LEN_SUM=$(( $_HEADLINE_LEN_SUM + $_HEADLINE_LEN ))
+  eval style="\$RESET\$HEADLINE_STYLE_${1}"
+  line="%{$style%}${(pl:$_HEADLINE_LEN::$HEADLINE_SINGLE_HORIZONTAL_LINE:)}"
+  if [[ $3 == 'right' ]]; then
+    _HEADLINE_INFO_RIGHT="$info$_HEADLINE_INFO_RIGHT"
+    _HEADLINE_LINE_RIGHT="$line$_HEADLINE_LINE_RIGHT"
+  else
+    _HEADLINE_INFO_LEFT="$_HEADLINE_INFO_LEFT$info"
+    _HEADLINE_LINE_LEFT="$_HEADLINE_LINE_LEFT$line"
+  fi
+}
+
+# Prompt
+headline_output() {
+  print -rP $_HEADLINE_INFO_OUTPUT
+  print -rP $HEADLINE_PROMPT
+}
+
+if [[ $HEADLINE_INFO_MODE == 'precmd' ]]; then
+  PROMPT=$HEADLINE_PROMPT # line and info printed by precmd
+else
+  PROMPT='$(headline_output)' # only line printed by precmd
+fi
+PROMPT_EOL_MARK=''

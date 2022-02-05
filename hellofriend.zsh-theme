@@ -129,3 +129,24 @@ GIT_STATUS_DIVERGED='↕'
 GIT_STATUS_STASHED='*'
 GIT_STATUS_CONFLICTS='✘' # Consider "%{$F_RED%}✘"
 GIT_STATUS_CLEAN='✔' # Consider "%{$F_GREEN%}✔"
+
+# ------------------------------------------------
+
+# Calculate length of string, excluding formatting characters
+# REF: https://old.reddit.com/r/zsh/comments/cgbm24/multiline_prompt_the_missing_ingredient/
+headline_prompt_len() {
+    emulate -L zsh
+    local -i COLUMNS=${2:-COLUMNS}
+    local -i x y=${#1} m
+    if (( y )); then
+        while (( ${${(%):-$1%$y(l.1.0)}[-1]} )); do
+            x=y
+            (( y *= 2 ))
+        done
+        while (( y > x + 1 )); do
+            (( m = x + (y - x) / 2 ))
+            (( ${${(%):-$1%$m(l.x.y)}[-1]} = m ))
+        done
+    fi
+    echo $x
+}

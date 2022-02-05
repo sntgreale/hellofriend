@@ -67,10 +67,16 @@ IS_SSH=$?
 # Customization
 
 # Options
+HEADLINE_LINE_MODE='auto' # on|auto|off (whether to print the line above the prompt)
+HEADLINE_INFO_MODE='prompt' # precmd|prompt (whether info line is in $PROMPT or printed by precmd)
+  # use "precmd" for window resize to work properly (but Ctrl+L doesn't show info line)
+  # use "prompt" for Ctrl+L to clear properly (but window resize eats previous output)
+
+# Options
 HEADLINE_SHOW_LINE='true'
 HEADLINE_SHOW_INTERSECTION='true'
-HEADLINE_SINGLE_ACTIVE='true'
-HEADLINE_DOUBLE_ACTIVE='false'
+#HEADLINE_SINGLE_ACTIVE='true'
+#HEADLINE_DOUBLE_ACTIVE='false'
 
 # Segments
 HEADLINE_USER='true'

@@ -291,7 +291,7 @@ headline_git_status() {
   if (( ${#status_str} )); then
     echo $status_str
   else
-    echo $GIT_CLEAN
+    echo $GIT_STATUS_CLEAN
   fi
 }
 

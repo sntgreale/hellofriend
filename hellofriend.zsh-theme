@@ -390,6 +390,7 @@ headline_precmd() {
     fi
   fi
   len=$(( $COLUMNS - $_HEADLINE_LEN_SUM - ${#SPACE} - ${#SPACE} ))
+  _headline_part JOINT "${(pl:$len::$SPACE:)}" left
 
   # Separator line
   _HEADLINE_LINE_OUTPUT="$_HEADLINE_LINE_LEFT$_HEADLINE_LINE_RIGHT$RESET"

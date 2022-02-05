@@ -1,6 +1,6 @@
 #!/bin/zsh
 
-# Headline ZSH Prompt
+# HelloFriend ZSH Prompt
 
 ## Font types
 BOLD=$'\e[1m'
@@ -58,3 +58,7 @@ B_BRIGHT_CYAN=$'\e[106m'
 
 F_BRIGHT_WHITE=$'\e[97m'
 B_BRIGHT_WHITE=$'\e[107m'
+
+# Flags
+! [ -z "$SSH_TTY$SSH_CONNECTION$SSH_CLIENT" ]
+IS_SSH=$?

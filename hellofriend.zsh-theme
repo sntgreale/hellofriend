@@ -145,6 +145,9 @@ GIT_STATUS_STASHED='*'
 GIT_STATUS_CONFLICTS='✘' # Consider "%{$F_RED%}✘"
 GIT_STATUS_CLEAN='✔' # Consider "%{$F_GREEN%}✔"
 
+GIT_STATUS_COUNTS='true'
+GIT_STATUS_OMIT_ONE='false'
+
 # ------------------------------------------------
 
 # Calculate length of string, excluding formatting characters

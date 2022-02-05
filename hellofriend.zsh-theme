@@ -148,6 +148,11 @@ GIT_STATUS_CLEAN='✔' # Consider "%{$F_GREEN%}✔"
 GIT_STATUS_COUNTS='true'
 GIT_STATUS_OMIT_ONE='false'
 
+# Constants for zsh
+setopt PROMPT_SP # always start prompt on new line
+setopt PROMPT_SUBST # substitutions
+autoload -U add-zsh-hook
+
 # Local variables
 _HEADLINE_LINE_OUTPUT='' # separator line
 _HEADLINE_INFO_OUTPUT='' # text line

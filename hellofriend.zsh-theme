@@ -120,6 +120,7 @@ PARENTHESES_OPEN='('
 PARENTHESES_CLOSE=')'
 
 # Git status variables
+GIT_HASH=':' # hash prefix to distinguish from branch
 GIT_STATUS_STAGED='+'
 GIT_STATUS_CHANGED='!'
 GIT_STATUS_UNTRACKED='?'

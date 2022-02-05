@@ -148,6 +148,14 @@ GIT_STATUS_CLEAN='✔' # Consider "%{$F_GREEN%}✔"
 GIT_STATUS_COUNTS='true'
 GIT_STATUS_OMIT_ONE='false'
 
+# Local variables
+_HEADLINE_LINE_OUTPUT='' # separator line
+_HEADLINE_INFO_OUTPUT='' # text line
+_HEADLINE_DO_SEP='false' # whether to show divider this time
+if [ $IS_SSH = 0 ]; then
+  _HEADLINE_DO_SEP='true' # assume it's not a fresh window
+fi
+
 # ------------------------------------------------
 
 # Calculate length of string, excluding formatting characters

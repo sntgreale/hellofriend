@@ -369,7 +369,7 @@ headline_precmd() {
     else
       _headline_part JOINT "$HEADLINE_SINGLE_CORNER_BOTTOM_LEFT" left
     fi
-    len=$(( $COLUMNS - $_HEADLINE_LEN_SUM - ( $git_len ? 3 : 0 ) ))
+    len=$(( $COLUMNS - $_HEADLINE_LEN_SUM - ( $git_len ? 4 : 0 ) ))
     _headline_part PATH "$SPACE%$len<...<$path_str%<<$SPACE" left
     if (( ${#branch_str} )) || (( ${#status_str} )); then
       _headline_part JOINT "$HEADLINE_SINGLE_BOTTOM_INTERSECTION" right

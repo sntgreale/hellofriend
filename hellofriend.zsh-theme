@@ -168,3 +168,109 @@ headline_prompt_len() {
     fi
     echo $x
 }
+
+
+# Git command wrapper
+headline_git() {
+    GIT_OPTIONAL_LOCKS=0 command git "$@"
+}
+
+# Git branch (or hash)
+headline_git_branch() {
+    local ref
+    ref=$(headline_git symbolic-ref --quiet HEAD 2> /dev/null)
+    local ret=$?
+    if [[ $ret == 0 ]]; then
+        echo ${ref#refs/heads/} # remove "refs/heads/" to get branch
+    else # not on a branch
+        [[ $ret == 128 ]] && return  # not a git repo
+        ref=$(headline_git rev-parse --short HEAD 2> /dev/null) || return
+        echo "$GIT_HASH$ref" # hash prefixed to distingush from branch
+    fi
+}
+
+# Git status
+headline_git_status() {
+  # Data structures
+  local order=('STAGED' 'CHANGED' 'UNTRACKED' 'BEHIND' 'AHEAD' 'DIVERGED' 'STASHED' 'CONFLICTS')
+  local -A totals
+  for key in $order; do
+    totals+=($key 0)
+  done
+
+  # Retrieve status
+  # REF: https://git-scm.com/docs/git-status
+  local raw lines
+  raw="$(headline_git status --porcelain -b 2> /dev/null)"
+  if [[ $? == 128 ]]; then
+    return 1 # catastrophic failure, abort
+  fi
+  lines=(${(@f)raw})
+
+  # Process tracking line
+  if [[ ${lines[1]} =~ '^## [^ ]+ \[(.*)\]' ]]; then
+    local items=("${(@s/,/)match}")
+    for item in $items; do
+      if [[ $item =~ '(behind|ahead|diverged) ([0-9]+)?' ]]; then
+        case $match[1] in
+          'behind') totals[BEHIND]=$match[2];;
+          'ahead') totals[AHEAD]=$match[2];;
+          'diverged') totals[DIVERGED]=$match[2];;
+        esac
+      fi
+    done
+  fi
+
+  # Process status lines
+  for line in $lines; do
+    if [[ $line =~ '^##|^!!' ]]; then
+      continue
+    elif [[ $line =~ '^U[AD]|^[AD]U|^AA|^DD' ]]; then
+      totals[CONFLICTS]=$(( ${totals[CONFLICTS]} + 1 ))
+    elif [[ $line =~ '^\?\?' ]]; then
+      totals[UNTRACKED]=$(( ${totals[UNTRACKED]} + 1 ))
+    elif [[ $line =~ '^[MTADRC] ' ]]; then
+      totals[STAGED]=$(( ${totals[STAGED]} + 1 ))
+    elif [[ $line =~ '^[MTARC][MTD]' ]]; then
+      totals[STAGED]=$(( ${totals[STAGED]} + 1 ))
+      totals[CHANGED]=$(( ${totals[CHANGED]} + 1 ))
+    elif [[ $line =~ '^ [MTADRC]' ]]; then
+      totals[CHANGED]=$(( ${totals[CHANGED]} + 1 ))
+    fi
+  done
+
+  # Check for stashes
+  if $(headline_git rev-parse --verify refs/stash &> /dev/null); then
+    totals[STASHED]=$(headline_git rev-list --walk-reflogs --count refs/stash 2> /dev/null)
+  fi
+
+  # Build string
+  local prefix status_str
+  status_str=''
+  for key in $order; do
+    if (( ${totals[$key]} > 0 )); then
+      if (( ${#status_str} )); then # not first iteration
+        local style_joint="$RESET$HEADLINE_STYLE_DEFAULT$HEADLINE_STYLE_JOINT"
+        local style_status="$RESET$HEADLINE_STYLE_DEFAULT$HEADLINE_STYLE_STATUS"
+        status_str="$status_str%{$style_joint%}$EMPTY%{$style_status%}"
+      fi
+      eval prefix="\$GIT_${key}"
+      if [[ $GIT_STATUS_COUNTS == 'true' ]]; then
+        if [[ $GIT_STATUS_OMIT_ONE == 'true' && (( ${totals[$key]} == 1 )) ]]; then
+          status_str="$status_str$prefix"
+        else
+          status_str="$status_str${totals[$key]}$prefix"
+        fi
+      else
+        status_str="$status_str$prefix"
+      fi
+    fi
+  done
+
+  # Return
+  if (( ${#status_str} )); then
+    echo $status_str
+  else
+    echo $GIT_CLEAN
+  fi
+}

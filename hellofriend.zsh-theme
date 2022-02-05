@@ -62,3 +62,70 @@ B_BRIGHT_WHITE=$'\e[107m'
 # Flags
 ! [ -z "$SSH_TTY$SSH_CONNECTION$SSH_CLIENT" ]
 IS_SSH=$?
+
+# ------------------------------------------------
+# Customization
+
+# Options
+HEADLINE_SHOW_LINE='true'
+HEADLINE_SHOW_INTERSECTION='true'
+HEADLINE_SINGLE_ACTIVE='true'
+HEADLINE_DOUBLE_ACTIVE='false'
+
+# Segments
+HEADLINE_USER='true'
+HEADLINE_HOST='true'
+HEADLINE_PATH='true'
+HEADLINE_GIT_BRANCH='true'
+HEADLINE_GIT_STATUS='true'
+
+# Promp Character
+HEADLINE_PROMPT="%(#.#.%(!.!.$)) "
+
+# Line drawing characters
+# Representation of the drawing with single and double characters.
+#
+# Single:
+# ┌─────┬─────┬─────────────────────────┬─────────────┬─────────────┐
+# └ user┴host ┴ pathtotheuser'slocation ┴[ gitbranch ]┴[ gitstatus ]┘
+#
+# Double:
+# ╔═════╦═════╦═════════════════════════╦═════════════╦═════════════╗
+# ╚ user╩host ╩ pathtotheuser'slocation ╩[ gitbranch ]╩[ gitstatus ]╝
+#
+HEADLINE_SINGLE_HORIZONTAL_LINE='─'
+HEADLINE_SINGLE_CORNER_TOP_LEFT='┌'
+HEADLINE_SINGLE_CORNER_TOP_RIGHT='┐'
+HEADLINE_SINGLE_CORNER_BOTTOM_LEFT='└'
+HEADLINE_SINGLE_CORNER_BOTTOM_RIGHT='┘'
+HEADLINE_SINGLE_TOP_INTERSECTION='┬'
+HEADLINE_SINGLE_BOTTOM_INTERSECTION='┴'
+#HEADLINE_SINGLE_LEFT_INTERSECTION='├'
+#HEADLINE_SINGLE_RIGHT_INTERSECTION='┤'
+
+HEADLINE_DOUBLE_HORIZONTAL_LINE='═'
+HEADLINE_DOUBLE_CORNER_TOP_LEFT='╔'
+HEADLINE_DOUBLE_CORNER_TOP_RIGHT='╗'
+HEADLINE_DOUBLE_CORNER_BOTTOM_LEFT='╚'
+HEADLINE_DOUBLE_CORNER_BOTTOM_RIGHT='╝'
+HEADLINE_DOUBLE_TOP_INTERSECTION='╦'
+HEADLINE_DOUBLE_BOTTOM_INTERSECTION='╩'
+#HEADLINE_DOUBLE_LEFT_INTERSECTION='╠'
+#HEADLINE_DOUBLE_RIGHT_INTERSECTION='╣'
+
+# Constants
+BRACKETS_OPEN='['
+BRACKETS_CLOSE=']'
+PARENTHESES_OPEN='('
+PARENTHESES_CLOSE=')'
+
+# Git status variables
+GIT_STATUS_STAGED='+'
+GIT_STATUS_CHANGED='!'
+GIT_STATUS_UNTRACKED='?'
+GIT_STATUS_BEHIND='↓'
+GIT_STATUS_AHEAD='↑'
+GIT_STATUS_DIVERGED='↕'
+GIT_STATUS_STASHED='*'
+GIT_STATUS_CONFLICTS='✘' # Consider "%{$F_RED%}✘"
+GIT_STATUS_CLEAN='✔' # Consider "%{$F_GREEN%}✔"

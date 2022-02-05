@@ -318,9 +318,7 @@ headline_precmd() {
   [[ $HEADLINE_GIT_STATUS == 'true' ]] && status_str=$(headline_git_status)
 
   # Trimming
-  if (( $COLUMNS < 35 && ${#path_str} )); then
-    user_str=''; host_str=''
-  elif (( $COLUMNS < 55 )); then
+  if (( $COLUMNS < 55 )); then
     user_str="${user_str:0:1}"
     host_str="${host_str:0:1}"
   fi

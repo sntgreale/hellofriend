@@ -114,7 +114,7 @@ PARENTHESES_CLOSE=')'
 
 # Info styles (ANSI SGR codes)
 HEADLINE_STYLE_DEFAULT='' # style applied to entire info line
-HEADLINE_STYLE_JOINT=$F_GREY
+HEADLINE_STYLE_JOINT=$F_WHITE
 if [ $IS_SSH = 0 ]; then
   HEADLINE_STYLE_USER=$F_MAGENTA
 else
@@ -134,10 +134,10 @@ GIT_STATUS_BEHIND='↓'
 GIT_STATUS_AHEAD='↑'
 GIT_STATUS_DIVERGED='↕'
 GIT_STATUS_STASHED='*'
-GIT_STATUS_CONFLICTS='✘' # Consider "%{$F_RED%}✘"
-GIT_STATUS_CLEAN='✔' # Consider "%{$F_GREEN%}✔"
+GIT_STATUS_CONFLICTS='%{$F_RED%}✘' # Consider "%{$F_RED%}✘"
+GIT_STATUS_CLEAN='%{$F_GREEN%}✔' # Consider "%{$F_GREEN%}✔"
 
-GIT_STATUS_COUNTS='true'
+GIT_STATUS_COUNTS='false'
 GIT_STATUS_OMIT_ONE='false'
 
 # Constants for zsh

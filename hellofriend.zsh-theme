@@ -316,63 +316,63 @@ headline_precmd() {
   local git_len len
   # Promp construction HEADLINE GIT STATUS
   if (( ${#status_str} )); then
-    _headline_part JOINT "$HEADLINE_SINGLE_CORNER_BOTTOM_RIGHT" right
-    _headline_part STATUS "$BRACKETS_OPEN$SPACE$status_str$SPACE$BRACKETS_CLOSE" right
+    _headline_part JOINT "$HEADLINE_SINGLE_CORNER_BOTTOM_RIGHT" right "$HEADLINE_SINGLE_CORNER_TOP_RIGHT"
+    _headline_part STATUS "$BRACKETS_OPEN$SPACE$status_str$SPACE$BRACKETS_CLOSE" right "$HEADLINE_SINGLE_HORIZONTAL_LINE"
   fi
   # Promp construction HEADLINE GIT BRANCH
   if (( ${#branch_str} )); then
     if (( ${#status_str} )); then
-      _headline_part JOINT "$HEADLINE_SINGLE_BOTTOM_INTERSECTION" right
+      _headline_part JOINT "$HEADLINE_SINGLE_BOTTOM_INTERSECTION" right "$HEADLINE_SINGLE_TOP_INTERSECTION"
     else
-      _headline_part JOINT "$HEADLINE_SINGLE_CORNER_BOTTOM_RIGHT" right
+      _headline_part JOINT "$HEADLINE_SINGLE_CORNER_BOTTOM_RIGHT" right "$HEADLINE_SINGLE_CORNER_TOP_RIGHT"
     fi
-    _headline_part BRANCH "$BRACKETS_OPEN$SPACE$branch_str$SPACE$BRACKETS_CLOSE" right
+    _headline_part BRANCH "$BRACKETS_OPEN$SPACE$branch_str$SPACE$BRACKETS_CLOSE" right "$HEADLINE_SINGLE_HORIZONTAL_LINE"
   fi
   git_len=$_HEADLINE_LEN_SUM
   # Promp construction HEADLINE USER
   if (( ${#user_str} )); then
-    _headline_part JOINT "$HEADLINE_SINGLE_CORNER_BOTTOM_LEFT" left
-    _headline_part USER "$SPACE$user_str" left
+    _headline_part JOINT "$HEADLINE_SINGLE_CORNER_BOTTOM_LEFT" left "$HEADLINE_SINGLE_CORNER_TOP_LEFT"
+    _headline_part USER "$SPACE$user_str" left "$HEADLINE_SINGLE_HORIZONTAL_LINE"
   fi
   # Promp construction HEADLINE HOST
   if (( ${#host_str} )); then
     if (( ${#user_str} )); then
-      _headline_part JOINT "$HEADLINE_SINGLE_BOTTOM_INTERSECTION" left
-      _headline_part HOST "$host_str$SPACE" left
+      _headline_part JOINT "$HEADLINE_SINGLE_BOTTOM_INTERSECTION" left "$HEADLINE_SINGLE_TOP_INTERSECTION"
+      _headline_part HOST "$host_str$SPACE" left "$HEADLINE_SINGLE_HORIZONTAL_LINE"
     else
-      _headline_part JOINT "$HEADLINE_SINGLE_CORNER_BOTTOM_LEFT" left
-      _headline_part HOST "$SPACE$host_str$SPACE" left
+      _headline_part JOINT "$HEADLINE_SINGLE_CORNER_BOTTOM_LEFT" left "$HEADLINE_SINGLE_CORNER_TOP_LEFT"
+      _headline_part HOST "$SPACE$host_str$SPACE" left "$HEADLINE_SINGLE_HORIZONTAL_LINE"
     fi
   fi
   # Promp construction HEADLINE PATH
   if (( ${#path_str} )); then
     if (( ${#host_str} )) || (( ${#user_str} )); then
-      _headline_part JOINT "$HEADLINE_SINGLE_BOTTOM_INTERSECTION" left
+      _headline_part JOINT "$HEADLINE_SINGLE_BOTTOM_INTERSECTION" left "$HEADLINE_SINGLE_TOP_INTERSECTION"
     else
-      _headline_part JOINT "$HEADLINE_SINGLE_CORNER_BOTTOM_LEFT" left
+      _headline_part JOINT "$HEADLINE_SINGLE_CORNER_BOTTOM_LEFT" left "$HEADLINE_SINGLE_CORNER_TOP_LEFT"
     fi
     len=$(( $COLUMNS - $_HEADLINE_LEN_SUM - ( $git_len ? 4 : 0 ) ))
-    _headline_part PATH "$SPACE%$len<...<$path_str%<<$SPACE" left
+    _headline_part PATH "$SPACE%$len<...<$path_str%<<$SPACE" left "$HEADLINE_SINGLE_HORIZONTAL_LINE"
     if (( ${#branch_str} )) || (( ${#status_str} )); then
-      _headline_part JOINT "$HEADLINE_SINGLE_BOTTOM_INTERSECTION" right
+      _headline_part JOINT "$HEADLINE_SINGLE_BOTTOM_INTERSECTION" right "$HEADLINE_SINGLE_TOP_INTERSECTION"
     else
-      _headline_part JOINT "$HEADLINE_SINGLE_CORNER_BOTTOM_RIGHT" right
+      _headline_part JOINT "$HEADLINE_SINGLE_CORNER_BOTTOM_RIGHT" right "$HEADLINE_SINGLE_CORNER_TOP_RIGHT"
     fi
   else
     if (( ${#host_str} )) || (( ${#user_str} )); then
       if (( ${#branch_str} )) || (( ${#status_str} )); then
-        _headline_part JOINT "$HEADLINE_SINGLE_BOTTOM_INTERSECTION" left
+        _headline_part JOINT "$HEADLINE_SINGLE_BOTTOM_INTERSECTION" left "$HEADLINE_SINGLE_TOP_INTERSECTION"
       else
-        _headline_part JOINT "$SPACE$HEADLINE_SINGLE_CORNER_BOTTOM_RIGHT" left
+        _headline_part JOINT "$SPACE$HEADLINE_SINGLE_CORNER_BOTTOM_RIGHT" left "$HEADLINE_SINGLE_CORNER_TOP_RIGHT"
       fi
     else
       if (( ${#branch_str} )) || (( ${#status_str} )); then
-        _headline_part JOINT "$HEADLINE_SINGLE_CORNER_BOTTOM_LEFT" left
+        _headline_part JOINT "$HEADLINE_SINGLE_CORNER_BOTTOM_LEFT" left "$HEADLINE_SINGLE_CORNER_TOP_LEFT"
       fi
     fi
   fi
   len=$(( $COLUMNS - $_HEADLINE_LEN_SUM - ${#SPACE} - ${#SPACE} ))
-  _headline_part JOINT "${(pl:$len::$SPACE:)}" left
+  _headline_part JOINT "${(pl:$len::$SPACE:)}" left "$HEADLINE_SINGLE_HORIZONTAL_LINE"
 
   # Separator line
   _HEADLINE_LINE_OUTPUT="$_HEADLINE_LINE_LEFT$_HEADLINE_LINE_RIGHT$RESET"
@@ -389,14 +389,14 @@ headline_precmd() {
 }
 
 # Create a part of the prompt
-_headline_part() { # (name, content, side)
+_headline_part() { # (name, content, side, character to line)
   local style info line
   eval style="\$RESET\$HEADLINE_STYLE_DEFAULT\$HEADLINE_STYLE_${1}"
   info="%{$style%}$2"
   _HEADLINE_LEN=$(headline_prompt_len $info)
   _HEADLINE_LEN_SUM=$(( $_HEADLINE_LEN_SUM + $_HEADLINE_LEN ))
   eval style="\$RESET\$HEADLINE_STYLE_${1}"
-  line="%{$style%}${(pl:$_HEADLINE_LEN::$HEADLINE_SINGLE_HORIZONTAL_LINE:)}"
+  line="%{$style%}${(pl:$_HEADLINE_LEN::$4:)}"
   if [[ $3 == 'right' ]]; then
     _HEADLINE_INFO_RIGHT="$info$_HEADLINE_INFO_RIGHT"
     _HEADLINE_LINE_RIGHT="$line$_HEADLINE_LINE_RIGHT"
